@@ -1,0 +1,53 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+}
+
+group 'com.hirshi001'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
+}
+
+ext {
+    betterNetworkingVersion="70dfb84ec6"
+    wsVersion = "1.9.10.3"
+    gwtUserVersion="2.10.0"
+    gwtRestApiVersion="1eda437050"
+    byteBufferVersion="ea62bf49b9"
+}
+
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7'
+
+    api "com.github.hirshi001:betternetworking:$betterNetworkingVersion"
+    api "com.github.hirshi001:betternetworking:$betterNetworkingVersion:sources"
+
+// https://mvnrepository.com/artifact/org.gwtproject/gwt-user
+    implementation "com.github.MrStahlfelge.gdx-websockets:core:$wsVersion:sources"
+    implementation "com.github.MrStahlfelge.gdx-websockets:html:$wsVersion"
+    implementation "com.github.MrStahlfelge.gdx-websockets:html:$wsVersion:sources"
+
+    implementation "org.gwtproject:gwt-user:$gwtUserVersion"
+    implementation "org.gwtproject:gwt-user:$gwtUserVersion:sources"
+
+    api "com.github.hirshi001:GWTRestAPI:$gwtRestApiVersion"
+    api "com.github.hirshi001:GWTRestAPI:$gwtRestApiVersion:sources"
+
+}
+
+test {
+    useJUnitPlatform()
+}
