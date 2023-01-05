@@ -3,8 +3,10 @@
         "http://www.gwtproject.org/doctype/2.8.0/gwt-module.dtd">
 <module>
     <inherits name="com.hirshi001.gwtrestapi.gwtrestapi" />
+    <inherits name="com.hirshi001.restapi.restapi" />
     <inherits name="com.hirshi001.buffer.buffer" />
     <inherits name="com.google.gwt.user.User" />
     <inherits name="com.google.gwt.core.Core" />
+    <inherits name='com.github.czyzby.websocket.GdxWebSocketGwt' />
     <source path=""/>
 </module>

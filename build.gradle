@@ -20,11 +20,11 @@ publishing {
 }
 
 ext {
-    betterNetworkingVersion="08e8e3285b"
+    betterNetworkingVersion="c41eb5a0c4"
     wsVersion = "1.9.10.3"
     gwtUserVersion="2.10.0"
     restAPIVersion="5cb0ab6457"
-    gwtRestApiVersion="62b6b5905b"
+    gwtRestApiVersion="011f30e2fe"
     byteBufferVersion="ea62bf49b9"
 }
 
@@ -34,19 +34,12 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7'
 
     api "com.github.hirshi001:betternetworking:$betterNetworkingVersion"
-    api "com.github.hirshi001:betternetworking:$betterNetworkingVersion:sources"
+    api "com.github.hirshi001:GWTRestAPI:$gwtRestApiVersion"
 
 // https://mvnrepository.com/artifact/org.gwtproject/gwt-user
-    implementation "com.github.MrStahlfelge.gdx-websockets:core:$wsVersion:sources"
     implementation "com.github.MrStahlfelge.gdx-websockets:html:$wsVersion"
-    implementation "com.github.MrStahlfelge.gdx-websockets:html:$wsVersion:sources"
 
-    implementation "org.gwtproject:gwt-user:$gwtUserVersion"
-    implementation "org.gwtproject:gwt-user:$gwtUserVersion:sources"
 
-    api "com.github.hirshi001:GWTRestAPI:$gwtRestApiVersion"
-    api "com.github.hirshi001:GWTRestAPI:$gwtRestApiVersion:sources"
-    api "com.github.hirshi001:restapi:$restAPIVersion:sources"
 
 }
 

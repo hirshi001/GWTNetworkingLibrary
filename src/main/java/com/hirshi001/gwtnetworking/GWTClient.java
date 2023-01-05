@@ -1,6 +1,7 @@
 package com.hirshi001.gwtnetworking;
 
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.user.client.Timer;
 import com.hirshi001.buffer.bufferfactory.BufferFactory;
 import com.hirshi001.networking.network.channel.Channel;
 import com.hirshi001.networking.network.client.BaseClient;
@@ -9,9 +10,11 @@ import com.hirshi001.networking.network.client.ClientOption;
 import com.hirshi001.networking.networkdata.NetworkData;
 import com.hirshi001.restapi.RestAPI;
 import com.hirshi001.restapi.RestFuture;
+import com.hirshi001.restapi.ScheduledExec;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class GWTClient extends BaseClient {
 
@@ -23,11 +26,39 @@ public class GWTClient extends BaseClient {
 
     CheckTCPCommand checkTCPCommand;
 
+    private static final ScheduledExec DEFAULT_EXECUTOR = new ScheduledExec() {
+        private final Scheduler scheduler = Scheduler.get();
+
+        public void run(final Runnable runnable, long delay) {
+            Timer timer = new Timer() {
+                public void run() {
+                    runnable.run();
+                }
+            };
+            timer.schedule((int)delay);
+        }
+
+        public void run(final Runnable runnable, long delay, TimeUnit period) {
+            Timer timer = new Timer() {
+                public void run() {
+                    runnable.run();
+                }
+            };
+            int delayMillis = (int)TimeUnit.MILLISECONDS.convert(delay, period);
+            timer.schedule(delayMillis);
+        }
+
+        public void runDeferred(Runnable runnable) {
+            this.scheduler.scheduleDeferred(runnable::run);
+        }
+    };
+
 
     public GWTClient(NetworkData networkData, BufferFactory bufferFactory, String host, int port) {
         super(networkData, bufferFactory, host, port);
         scheduler = Scheduler.get();
         options = new HashMap<>();
+        channel = new GWTChannel(this, DEFAULT_EXECUTOR, host, port);
     }
 
     @Override

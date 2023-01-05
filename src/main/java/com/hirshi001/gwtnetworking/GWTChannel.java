@@ -4,19 +4,14 @@ import com.github.czyzby.websocket.WebSocket;
 import com.github.czyzby.websocket.WebSocketAdapter;
 import com.github.czyzby.websocket.WebSocketListener;
 import com.github.czyzby.websocket.WebSockets;
-import com.github.czyzby.websocket.data.WebSocketException;
-import com.github.czyzby.websocket.serialization.Serializer;
-import com.google.gwt.core.client.Scheduler;
 import com.hirshi001.buffer.buffers.ByteBuffer;
 import com.hirshi001.networking.network.channel.BaseChannel;
 import com.hirshi001.networking.network.channel.Channel;
-import com.hirshi001.networking.network.client.Client;
 import com.hirshi001.networking.network.networkside.NetworkSide;
 import com.hirshi001.restapi.RestAPI;
 import com.hirshi001.restapi.RestFuture;
+import com.hirshi001.restapi.ScheduledExec;
 
-import java.io.IOException;
-import java.net.Socket;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class GWTChannel extends BaseChannel {
@@ -33,7 +28,7 @@ public class GWTChannel extends BaseChannel {
     private final byte[] sendBuffer;
 
 
-    public GWTChannel(NetworkSide networkSide, ScheduledExecutorService executor, String ip, int port) {
+    public GWTChannel(NetworkSide networkSide, ScheduledExec executor, String ip, int port) {
         super(networkSide, executor);
         url = WebSockets.toWebSocketUrl(ip, port);
         sendBuffer = new byte[256];
