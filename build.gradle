@@ -23,6 +23,7 @@ ext {
     betterNetworkingVersion="70dfb84ec6"
     wsVersion = "1.9.10.3"
     gwtUserVersion="2.10.0"
+    restAPIVersion="5cb0ab6457"
     gwtRestApiVersion="1eda437050"
     byteBufferVersion="ea62bf49b9"
 }
@@ -45,6 +46,7 @@ dependencies {
 
     api "com.github.hirshi001:GWTRestAPI:$gwtRestApiVersion"
     api "com.github.hirshi001:GWTRestAPI:$gwtRestApiVersion:sources"
+    api "com.github.hirshi001:restapi:$restAPIVersion:sources"
 
 }
 
