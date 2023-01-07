@@ -119,9 +119,8 @@ public class GWTClient extends BaseClient {
 
     @Override
     public RestFuture<?, Client> startTCP() {
-        return RestAPI.create(() -> {
-            getChannel().startTCP();
-            return this;
+        return RestAPI.create((future, nullInput) -> {
+            getChannel().startTCP().onFailure(future::setCause).then((c)->future.taskFinished(this)).perform();
         });
     }
 
@@ -142,6 +141,15 @@ public class GWTClient extends BaseClient {
         });
     }
 
+    @Override
+    public boolean supportsTCP() {
+        return true;
+    }
+
+    @Override
+    public boolean supportsUDP() {
+        return false;
+    }
 
     class CheckTCPCommand implements Scheduler.RepeatingCommand {
 
