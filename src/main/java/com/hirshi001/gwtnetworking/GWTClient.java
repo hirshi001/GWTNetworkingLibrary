@@ -58,7 +58,6 @@ public class GWTClient extends BaseClient {
         super(networkData, bufferFactory, host, port);
         scheduler = Scheduler.get();
         options = new HashMap<>();
-        channel = new GWTChannel(this, DEFAULT_EXECUTOR, host, port);
     }
 
     @Override
@@ -120,6 +119,10 @@ public class GWTClient extends BaseClient {
     @Override
     public RestFuture<?, Client> startTCP() {
         return RestAPI.create((future, nullInput) -> {
+            if(channel==null){
+                channel = new GWTChannel(this, DEFAULT_EXECUTOR, getHost(), getPort());
+                if(channelInitializer!=null) channelInitializer.initChannel(channel);
+            }
             getChannel().startTCP().onFailure(future::setCause).then((c)->future.taskFinished(this)).perform();
         });
     }
