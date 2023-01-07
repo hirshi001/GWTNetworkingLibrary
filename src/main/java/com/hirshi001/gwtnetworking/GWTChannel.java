@@ -75,7 +75,7 @@ public class GWTChannel extends BaseChannel {
 
                 @Override
                 public boolean onMessage(WebSocket webSocket, byte[] packet) {
-                    receiveTCPBuffer.writeBytes(packet);
+                    onTCPBytesReceived(getSide().getBufferFactory().wrap(packet));
                     return super.onMessage(webSocket, packet);
                 }
 
