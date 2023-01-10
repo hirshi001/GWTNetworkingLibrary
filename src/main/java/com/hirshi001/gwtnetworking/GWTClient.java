@@ -26,6 +26,8 @@ public class GWTClient extends BaseClient {
 
     CheckTCPCommand checkTCPCommand;
 
+    boolean secure = false;
+
     private static final ScheduledExec DEFAULT_EXECUTOR = new ScheduledExec() {
         private final Scheduler scheduler = Scheduler.get();
 
@@ -58,6 +60,17 @@ public class GWTClient extends BaseClient {
         super(networkData, bufferFactory, host, port);
         scheduler = Scheduler.get();
         options = new HashMap<>();
+    }
+
+    public GWTClient(NetworkData networkData, BufferFactory bufferFactory, String host, int port, boolean secure) {
+        super(networkData, bufferFactory, host, port);
+        scheduler = Scheduler.get();
+        options = new HashMap<>();
+        this.secure = secure;
+    }
+
+    public boolean isSecure(){
+        return secure;
     }
 
     @Override

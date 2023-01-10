@@ -18,8 +18,7 @@ public class GWTChannel extends BaseChannel {
 
     private WebSocket webSocket;
     private WebSocketListener listener;
-    private String url;
-    private String ip;
+    private String ip, url;
     private int port;
 
     private final ByteBuffer receiveTCPBuffer;
@@ -30,9 +29,12 @@ public class GWTChannel extends BaseChannel {
 
     public GWTChannel(NetworkSide networkSide, ScheduledExec executor, String ip, int port) {
         super(networkSide, executor);
-        url = WebSockets.toWebSocketUrl(ip, port);
         sendBuffer = new byte[256];
         receiveTCPBuffer = getSide().getBufferFactory().circularBuffer(256);
+        this.ip = ip;
+        this.port = port;
+        if(((GWTClient)getSide()).isSecure()) url = WebSockets.toSecureWebSocketUrl(getIp(), getPort());
+        else url = WebSockets.toWebSocketUrl(getIp(), getPort());
     }
 
     @Override
@@ -53,6 +55,7 @@ public class GWTChannel extends BaseChannel {
     @Override
     public RestFuture<?, Channel> startTCP() {
         return RestAPI.create( (future, inputNull)->{
+
             webSocket = WebSockets.newSocket(url);
             listener = new WebSocketAdapter(){
                 @Override
