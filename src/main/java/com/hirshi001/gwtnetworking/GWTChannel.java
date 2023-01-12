@@ -139,6 +139,7 @@ public class GWTChannel extends BaseChannel {
     @Override
     protected void writeAndFlushTCP(ByteBuffer buffer) {
         if (isTCPOpen()) {
+
             /*
             while (buffer.readableBytes() >= sendBuffer.length) {
                 buffer.readBytes(sendBuffer);
@@ -146,6 +147,8 @@ public class GWTChannel extends BaseChannel {
             }
 
              */
+
+
             if (buffer.readableBytes() > 0) {
                 byte[] bytes = new byte[buffer.readableBytes()];
                 buffer.readBytes(bytes);
