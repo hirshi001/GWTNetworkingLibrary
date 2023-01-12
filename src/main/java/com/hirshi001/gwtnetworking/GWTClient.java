@@ -158,6 +158,11 @@ public class GWTClient extends BaseClient {
     }
 
     @Override
+    public ScheduledExec getExecutor() {
+        return DEFAULT_EXECUTOR;
+    }
+
+    @Override
     public boolean supportsTCP() {
         return true;
     }
