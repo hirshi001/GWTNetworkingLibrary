@@ -30,10 +30,11 @@ public class GWTChannel extends BaseChannel {
     public GWTChannel(NetworkSide networkSide, ScheduledExec executor, String ip, int port) {
         super(networkSide, executor);
         sendBuffer = new byte[256];
+
         receiveTCPBuffer = getSide().getBufferFactory().circularBuffer(256);
         this.ip = ip;
         this.port = port;
-        if(((GWTClient)getSide()).isSecure()) url = WebSockets.toSecureWebSocketUrl(getIp(), getPort());
+        if (((GWTClient) getSide()).isSecure()) url = WebSockets.toSecureWebSocketUrl(getIp(), getPort());
         else url = WebSockets.toWebSocketUrl(getIp(), getPort());
     }
 
@@ -54,10 +55,10 @@ public class GWTChannel extends BaseChannel {
 
     @Override
     public RestFuture<?, Channel> startTCP() {
-        return RestAPI.create( (future, inputNull)->{
+        return RestAPI.create((future, inputNull) -> {
 
             webSocket = WebSockets.newSocket(url);
-            listener = new WebSocketAdapter(){
+            listener = new WebSocketAdapter() {
                 @Override
                 public boolean onOpen(WebSocket webSocket) {
                     future.taskFinished(GWTChannel.this);
@@ -90,7 +91,7 @@ public class GWTChannel extends BaseChannel {
             webSocket.addListener(listener);
             try {
                 webSocket.connect();
-            }catch (Exception e){
+            } catch (Exception e) {
                 future.setCause(e);
             }
         });
@@ -98,8 +99,8 @@ public class GWTChannel extends BaseChannel {
 
     @Override
     public RestFuture<?, Channel> stopTCP() {
-        return RestAPI.create( ()->{
-            if(webSocket!=null) webSocket.close();
+        return RestAPI.create(() -> {
+            if (webSocket != null) webSocket.close();
             return this;
         });
     }
@@ -126,7 +127,7 @@ public class GWTChannel extends BaseChannel {
 
     @Override
     public void checkTCPPackets() {
-        if(isTCPClosed()) return;
+        if (isTCPClosed()) return;
         onTCPBytesReceived(receiveTCPBuffer);
     }
 
@@ -137,12 +138,15 @@ public class GWTChannel extends BaseChannel {
 
     @Override
     protected void writeAndFlushTCP(ByteBuffer buffer) {
-        if(isTCPOpen()) {
-            while(buffer.readableBytes()>=sendBuffer.length){
+        if (isTCPOpen()) {
+            /*
+            while (buffer.readableBytes() >= sendBuffer.length) {
                 buffer.readBytes(sendBuffer);
                 webSocket.send(sendBuffer);
             }
-            if(buffer.readableBytes() > 0){
+
+             */
+            if (buffer.readableBytes() > 0) {
                 byte[] bytes = new byte[buffer.readableBytes()];
                 buffer.readBytes(bytes);
                 webSocket.send(bytes);
