@@ -11,10 +11,13 @@ import com.hirshi001.networking.networkdata.NetworkData;
 import com.hirshi001.restapi.RestAPI;
 import com.hirshi001.restapi.RestFuture;
 import com.hirshi001.restapi.ScheduledExec;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 public class GWTClient extends BaseClient {
 
@@ -28,42 +31,14 @@ public class GWTClient extends BaseClient {
 
     boolean secure = false;
 
-    private static final ScheduledExec DEFAULT_EXECUTOR = new ScheduledExec() {
-        private final Scheduler scheduler = Scheduler.get();
-
-        public void run(final Runnable runnable, long delay) {
-            Timer timer = new Timer() {
-                public void run() {
-                    runnable.run();
-                }
-            };
-            timer.schedule((int)delay);
-        }
-
-        public void run(final Runnable runnable, long delay, TimeUnit period) {
-            Timer timer = new Timer() {
-                public void run() {
-                    runnable.run();
-                }
-            };
-            int delayMillis = (int)TimeUnit.MILLISECONDS.convert(delay, period);
-            timer.schedule(delayMillis);
-        }
-
-        public void runDeferred(Runnable runnable) {
-            this.scheduler.scheduleDeferred(runnable::run);
-        }
-    };
-
-
-    public GWTClient(NetworkData networkData, BufferFactory bufferFactory, String host, int port) {
-        super(networkData, bufferFactory, host, port);
+    public GWTClient(ScheduledExec exec, NetworkData networkData, BufferFactory bufferFactory, String host, int port) {
+        super(exec, networkData, bufferFactory, host, port);
         scheduler = Scheduler.get();
         options = new HashMap<>();
     }
 
-    public GWTClient(NetworkData networkData, BufferFactory bufferFactory, String host, int port, boolean secure) {
-        super(networkData, bufferFactory, host, port);
+    public GWTClient(ScheduledExec exec, NetworkData networkData, BufferFactory bufferFactory, String host, int port, boolean secure) {
+        super(exec, networkData, bufferFactory, host, port);
         scheduler = Scheduler.get();
         options = new HashMap<>();
         this.secure = secure;
@@ -78,12 +53,6 @@ public class GWTClient extends BaseClient {
         return channel;
     }
 
-    @Override
-    public <T> void setClientOption(ClientOption<T> option, T value) {
-        options.put(option, value);
-        activateOption(option, value);
-    }
-
     protected void activateOption(ClientOption option, Object value){
         if(option==ClientOption.TCP_PACKET_CHECK_INTERVAL){
             if(checkTCPCommand!=null) {
@@ -92,48 +61,27 @@ public class GWTClient extends BaseClient {
             }
             Integer interval = (Integer) value;
             if(interval==null || interval<0) return;
-            checkTCPCommand = new CheckTCPCommand(interval);
-            scheduler.scheduleFixedDelay(checkTCPCommand, interval);
+            if(interval==0) {
+                // automatically handle packets once bytes are received
+                channel.autoHandlePackets(true);
+            }else {
+                channel.autoHandlePackets(false);
+                checkTCPCommand = new CheckTCPCommand(interval);
+                scheduler.scheduleFixedDelay(checkTCPCommand, interval);
+            }
         }
     }
 
-
-
     @Override
-    public <T> T getClientOption(ClientOption<T> option) {
-        return null;
-    }
-
-    @Override
-    public boolean isClosed() {
-        return false;
-    }
-
-    @Override
-    public boolean tcpOpen() {
-        return getChannel().isTCPOpen();
-    }
-
-    @Override
-    public boolean udpOpen() {
-        return false;
-    }
-
-    @Override
-    public boolean isOpen() {
-        return getChannel().isOpen();
-    }
-
-    @Override
-    public void close() {
-        getChannel().close().perform();
+    protected void setReceiveBufferSize(int size) {
+        // do nothing as GWT does not support udp
     }
 
     @Override
     public RestFuture<?, Client> startTCP() {
         return RestAPI.create((future, nullInput) -> {
             if(channel==null){
-                channel = new GWTChannel(this, DEFAULT_EXECUTOR, getHost(), getPort());
+                channel = new GWTChannel(this, getExecutor(), getHost(), getPort());
                 if(channelInitializer!=null) channelInitializer.initChannel(channel);
             }
             getChannel().startTCP().onFailure(future::setCause).then((c)->future.taskFinished(this)).perform();
@@ -147,20 +95,17 @@ public class GWTClient extends BaseClient {
 
     @Override
     public RestFuture<?, Client> stopTCP() {
-        return null;
-    }
-
-    @Override
-    public RestFuture<?, Client> stopUDP() {
-        return RestAPI.create(() -> {
-            throw new UnsupportedOperationException("UDP is not supported in GWT");
+        return RestAPI.create( ()->{
+            if(channel!=null) channel.stopTCP().perform();
+            return GWTClient.this;
         });
     }
 
     @Override
-    public ScheduledExec getExecutor() {
-        return DEFAULT_EXECUTOR;
+    public RestFuture<?, Client> stopUDP() {
+        return Unsupported.createUDP();
     }
+
 
     @Override
     public boolean supportsTCP() {

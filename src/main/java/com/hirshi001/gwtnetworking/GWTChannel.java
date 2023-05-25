@@ -12,16 +12,15 @@ import com.hirshi001.restapi.RestAPI;
 import com.hirshi001.restapi.RestFuture;
 import com.hirshi001.restapi.ScheduledExec;
 
-import java.util.concurrent.ScheduledExecutorService;
-
 public class GWTChannel extends BaseChannel {
 
     private WebSocket webSocket;
     private WebSocketListener listener;
     private String ip, url;
     private int port;
+    private ByteBuffer receiveBuffer;
+    private boolean autoHandlePackets = true;
 
-    private final ByteBuffer receiveTCPBuffer;
 
     private static final byte[] noAddress = new byte[0];
     private final byte[] sendBuffer;
@@ -31,11 +30,21 @@ public class GWTChannel extends BaseChannel {
         super(networkSide, executor);
         sendBuffer = new byte[256];
 
-        receiveTCPBuffer = getSide().getBufferFactory().circularBuffer(256);
+        receiveBuffer = getSide().getBufferFactory().buffer(256);
+
         this.ip = ip;
         this.port = port;
         if (((GWTClient) getSide()).isSecure()) url = WebSockets.toSecureWebSocketUrl(getIp(), getPort());
         else url = WebSockets.toWebSocketUrl(getIp(), getPort());
+    }
+
+    /**
+     * Sets whether the channel should automatically handle packets once the callback in websocket listener is called.
+     * The default value is true.
+     * @param autoHandle whether to automatically handle packets
+     */
+    public void autoHandlePackets(boolean autoHandle) {
+        this.autoHandlePackets = autoHandle;
     }
 
     @Override
@@ -62,13 +71,13 @@ public class GWTChannel extends BaseChannel {
                 @Override
                 public boolean onOpen(WebSocket webSocket) {
                     future.taskFinished(GWTChannel.this);
-                    getListenerHandler().onTCPConnect(GWTChannel.this);
+                    onTCPConnected();
                     return super.onOpen(webSocket);
                 }
 
                 @Override
                 public boolean onClose(WebSocket webSocket, int closeCode, String reason) {
-                    getListenerHandler().onTCPDisconnect(GWTChannel.this);
+                    onTCPDisconnected();
                     return super.onClose(webSocket, closeCode, reason);
                 }
 
@@ -79,7 +88,11 @@ public class GWTChannel extends BaseChannel {
 
                 @Override
                 public boolean onMessage(WebSocket webSocket, byte[] packet) {
-                    onTCPBytesReceived(getSide().getBufferFactory().wrap(packet));
+                    if(autoHandlePackets) {
+                        onTCPBytesReceived(getSide().getBufferFactory().wrap(packet));
+                    }else{
+                        receiveBuffer.writeBytes(packet);
+                    }
                     return super.onMessage(webSocket, packet);
                 }
 
@@ -128,32 +141,22 @@ public class GWTChannel extends BaseChannel {
     @Override
     public void checkTCPPackets() {
         if (isTCPClosed()) return;
-        onTCPBytesReceived(receiveTCPBuffer);
-    }
-
-    @Override
-    public void checkUDPPackets() {
-        // does nothing
+        onTCPBytesReceived(receiveBuffer);
+        super.checkTCPPackets();
     }
 
     @Override
     protected void writeAndFlushTCP(ByteBuffer buffer) {
-        if (isTCPOpen()) {
-
-            /*
-            while (buffer.readableBytes() >= sendBuffer.length) {
-                buffer.readBytes(sendBuffer);
-                webSocket.send(sendBuffer);
-            }
-
-             */
+        while (buffer.readableBytes() >= sendBuffer.length) {
+            buffer.readBytes(sendBuffer);
+            webSocket.send(sendBuffer);
+        }
 
 
-            if (buffer.readableBytes() > 0) {
-                byte[] bytes = new byte[buffer.readableBytes()];
-                buffer.readBytes(bytes);
-                webSocket.send(bytes);
-            }
+        if (buffer.readableBytes() > 0) {
+            byte[] bytes = new byte[buffer.readableBytes()];
+            buffer.readBytes(bytes);
+            webSocket.send(bytes);
         }
     }
 

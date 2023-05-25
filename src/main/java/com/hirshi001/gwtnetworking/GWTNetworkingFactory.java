@@ -5,6 +5,7 @@ import com.hirshi001.networking.network.NetworkFactory;
 import com.hirshi001.networking.network.client.Client;
 import com.hirshi001.networking.network.server.Server;
 import com.hirshi001.networking.networkdata.NetworkData;
+import com.hirshi001.restapi.RestAPI;
 
 import java.io.IOException;
 
@@ -17,7 +18,7 @@ public class GWTNetworkingFactory implements NetworkFactory {
 
     @Override
     public Client createClient(NetworkData networkData, BufferFactory bufferFactory, String host, int port) throws IOException {
-        return new GWTClient(networkData, bufferFactory, host, port);
+        return new GWTClient(RestAPI.getDefaultExecutor(), networkData, bufferFactory, host, port);
     }
 
 }
