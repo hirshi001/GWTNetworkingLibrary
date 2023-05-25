@@ -30,7 +30,7 @@ public class GWTChannel extends BaseChannel {
         super(networkSide, executor);
         sendBuffer = new byte[256];
 
-        receiveBuffer = getSide().getBufferFactory().buffer(256);
+        receiveBuffer = getSide().getBufferFactory().circularBuffer(1024);
 
         this.ip = ip;
         this.port = port;
@@ -88,10 +88,9 @@ public class GWTChannel extends BaseChannel {
 
                 @Override
                 public boolean onMessage(WebSocket webSocket, byte[] packet) {
+                    receiveBuffer.writeBytes(packet);
                     if(autoHandlePackets) {
-                        onTCPBytesReceived(getSide().getBufferFactory().wrap(packet));
-                    }else{
-                        receiveBuffer.writeBytes(packet);
+                        onTCPBytesReceived(receiveBuffer);
                     }
                     return super.onMessage(webSocket, packet);
                 }

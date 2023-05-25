@@ -60,7 +60,11 @@ public class GWTClient extends BaseClient {
                 checkTCPCommand = null;
             }
             Integer interval = (Integer) value;
-            if(interval==null || interval<0) return;
+            if(interval==null) interval=0;
+            if(interval<0) {
+                channel.autoHandlePackets(false);
+                return;
+            }
             if(interval==0) {
                 // automatically handle packets once bytes are received
                 channel.autoHandlePackets(true);
