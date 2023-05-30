@@ -12,6 +12,8 @@ import com.hirshi001.restapi.RestAPI;
 import com.hirshi001.restapi.RestFuture;
 import com.hirshi001.restapi.ScheduledExec;
 
+import java.net.InetAddress;
+
 public class GWTChannel extends BaseChannel {
 
     private WebSocket webSocket;
@@ -25,7 +27,6 @@ public class GWTChannel extends BaseChannel {
     private static final byte[] noAddress = new byte[0];
     private final byte[] sendBuffer;
 
-
     public GWTChannel(NetworkSide networkSide, ScheduledExec executor, String ip, int port) {
         super(networkSide, executor);
         sendBuffer = new byte[256];
@@ -36,6 +37,7 @@ public class GWTChannel extends BaseChannel {
         this.port = port;
         if (((GWTClient) getSide()).isSecure()) url = WebSockets.toSecureWebSocketUrl(getIp(), getPort());
         else url = WebSockets.toWebSocketUrl(getIp(), getPort());
+
     }
 
     /**
