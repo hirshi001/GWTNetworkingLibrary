@@ -151,7 +151,6 @@ public class GWTChannel extends BaseChannel {
             webSocket.send(sendBuffer);
         }
 
-
         if (buffer.readableBytes() > 0) {
             byte[] bytes = new byte[buffer.readableBytes()];
             buffer.readBytes(bytes);
