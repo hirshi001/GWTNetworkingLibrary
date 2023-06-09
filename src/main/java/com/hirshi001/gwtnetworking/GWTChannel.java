@@ -12,8 +12,6 @@ import com.hirshi001.restapi.RestAPI;
 import com.hirshi001.restapi.RestFuture;
 import com.hirshi001.restapi.ScheduledExec;
 
-import java.net.InetAddress;
-
 public class GWTChannel extends BaseChannel {
 
     private WebSocket webSocket;
