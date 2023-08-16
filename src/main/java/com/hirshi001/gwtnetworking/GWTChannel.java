@@ -16,10 +16,9 @@ public class GWTChannel extends BaseChannel {
 
     private WebSocket webSocket;
     private WebSocketListener listener;
-    private String ip, url;
-    private int port;
-    private ByteBuffer receiveBuffer;
-    private boolean autoHandlePackets = true;
+    private final String ip, url;
+    private final int port;
+    private final ByteBuffer receiveBuffer;
 
 
     private static final byte[] noAddress = new byte[0];
@@ -38,14 +37,6 @@ public class GWTChannel extends BaseChannel {
 
     }
 
-    /**
-     * Sets whether the channel should automatically handle packets once the callback in websocket listener is called.
-     * The default value is true.
-     * @param autoHandle whether to automatically handle packets
-     */
-    public void autoHandlePackets(boolean autoHandle) {
-        this.autoHandlePackets = autoHandle;
-    }
 
     @Override
     public String getIp() {
@@ -72,27 +63,19 @@ public class GWTChannel extends BaseChannel {
                 public boolean onOpen(WebSocket webSocket) {
                     future.taskFinished(GWTChannel.this);
                     onTCPConnected();
-                    return super.onOpen(webSocket);
+                    return true;
                 }
 
                 @Override
                 public boolean onClose(WebSocket webSocket, int closeCode, String reason) {
                     onTCPDisconnected();
-                    return super.onClose(webSocket, closeCode, reason);
-                }
-
-                @Override
-                public boolean onMessage(WebSocket webSocket, String packet) {
-                    return super.onMessage(webSocket, packet);
+                    return true;
                 }
 
                 @Override
                 public boolean onMessage(WebSocket webSocket, byte[] packet) {
                     receiveBuffer.writeBytes(packet);
-                    if(autoHandlePackets) {
-                        onTCPBytesReceived(receiveBuffer);
-                    }
-                    return super.onMessage(webSocket, packet);
+                    return true;
                 }
 
                 @Override

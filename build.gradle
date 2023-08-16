@@ -20,7 +20,7 @@ publishing {
 }
 
 ext {
-    betterNetworkingVersion="af4741db0f"
+    betterNetworkingVersion="7b10a7bf05"
     wsVersion = "1.9.10.3"
     gwtUserVersion="2.10.0"
     restAPIVersion="2a46f4e0bd"

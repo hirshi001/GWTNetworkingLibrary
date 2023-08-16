@@ -1,7 +1,6 @@
 package com.hirshi001.gwtnetworking;
 
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.user.client.Timer;
 import com.hirshi001.buffer.bufferfactory.BufferFactory;
 import com.hirshi001.networking.network.channel.Channel;
 import com.hirshi001.networking.network.client.BaseClient;
@@ -11,13 +10,6 @@ import com.hirshi001.networking.networkdata.NetworkData;
 import com.hirshi001.restapi.RestAPI;
 import com.hirshi001.restapi.RestFuture;
 import com.hirshi001.restapi.ScheduledExec;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.*;
 
 public class GWTClient extends BaseClient {
 
@@ -25,22 +17,16 @@ public class GWTClient extends BaseClient {
 
     Scheduler scheduler;
 
-    Map<ClientOption, Object> options;
-
-    CheckTCPCommand checkTCPCommand;
-
     boolean secure = false;
 
     public GWTClient(ScheduledExec exec, NetworkData networkData, BufferFactory bufferFactory, String host, int port) {
         super(exec, networkData, bufferFactory, host, port);
         scheduler = Scheduler.get();
-        options = new HashMap<>();
     }
 
     public GWTClient(ScheduledExec exec, NetworkData networkData, BufferFactory bufferFactory, String host, int port, boolean secure) {
         super(exec, networkData, bufferFactory, host, port);
         scheduler = Scheduler.get();
-        options = new HashMap<>();
         this.secure = secure;
     }
 
@@ -51,29 +37,6 @@ public class GWTClient extends BaseClient {
     @Override
     public Channel getChannel() {
         return channel;
-    }
-
-    protected void activateOption(ClientOption option, Object value){
-        if(option==ClientOption.TCP_PACKET_CHECK_INTERVAL){
-            if(checkTCPCommand!=null) {
-                checkTCPCommand.stop();
-                checkTCPCommand = null;
-            }
-            Integer interval = (Integer) value;
-            if(interval==null) interval=0;
-            if(interval<0) {
-                channel.autoHandlePackets(false);
-                return;
-            }
-            if(interval==0) {
-                // automatically handle packets once bytes are received
-                channel.autoHandlePackets(true);
-            }else {
-                channel.autoHandlePackets(false);
-                checkTCPCommand = new CheckTCPCommand(interval);
-                scheduler.scheduleFixedDelay(checkTCPCommand, interval);
-            }
-        }
     }
 
     @Override
@@ -121,27 +84,4 @@ public class GWTClient extends BaseClient {
         return false;
     }
 
-    class CheckTCPCommand implements Scheduler.RepeatingCommand {
-
-        private final int interval;
-        private boolean shouldStop = false;
-
-        public CheckTCPCommand(int interval) {
-            this.interval = interval;
-        }
-
-        @Override
-        public boolean execute() {
-            if(shouldStop) return false;
-
-            // check tcp packets
-            checkTCPPackets();
-
-            return true;
-        }
-
-        public void stop(){
-            shouldStop = true;
-        }
-    }
 }
