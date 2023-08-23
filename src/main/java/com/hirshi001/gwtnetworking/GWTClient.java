@@ -30,7 +30,7 @@ public class GWTClient extends BaseClient {
         this.secure = secure;
     }
 
-    public boolean isSecure(){
+    public boolean isSecure() {
         return secure;
     }
 
@@ -47,11 +47,11 @@ public class GWTClient extends BaseClient {
     @Override
     public RestFuture<?, Client> startTCP() {
         return RestAPI.create((future, nullInput) -> {
-            if(channel==null){
+            if (channel == null) {
                 channel = new GWTChannel(this, getExecutor(), getHost(), getPort());
-                if(channelInitializer!=null) channelInitializer.initChannel(channel);
+                if (channelInitializer != null) channelInitializer.initChannel(channel);
             }
-            getChannel().startTCP().onFailure(future::setCause).then((c)->future.taskFinished(this)).perform();
+            getChannel().startTCP().onFailure(future::setCause).then((c) -> future.taskFinished(this)).perform();
         });
     }
 
@@ -62,8 +62,8 @@ public class GWTClient extends BaseClient {
 
     @Override
     public RestFuture<?, Client> stopTCP() {
-        return RestAPI.create( ()->{
-            if(channel!=null) channel.stopTCP().perform();
+        return RestAPI.create(() -> {
+            if (channel != null) channel.stopTCP().perform();
             return GWTClient.this;
         });
     }
