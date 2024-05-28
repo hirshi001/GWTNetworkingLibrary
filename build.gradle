@@ -20,11 +20,11 @@ publishing {
 }
 
 ext {
-    betterNetworkingVersion="7b10a7bf05"
+    betterNetworkingVersion="e3463ec843"
     wsVersion = "1.9.10.3"
     gwtUserVersion="2.10.0"
-    restAPIVersion="2a46f4e0bd"
-    gwtRestApiVersion="66ba2d8fa2"
+    restAPIVersion="347b436dfb"
+    gwtRestApiVersion="671107e50b"
     byteBufferVersion="ea62bf49b9"
 }
 
