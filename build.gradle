@@ -38,9 +38,6 @@ dependencies {
 
 // https://mvnrepository.com/artifact/org.gwtproject/gwt-user
     implementation "com.github.MrStahlfelge.gdx-websockets:html:$wsVersion"
-
-
-
 }
 
 test {
